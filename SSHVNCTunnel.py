@@ -138,7 +138,8 @@ Output.grid( row=1, column=0, columnspan=2 )
 outputText = OutputConsole(root)
 outputText.place( in_=Output, relx=0.02 )
 
-root.bind("<Key-Escape>", outputText.Kill)
+root.bind( '<Key-Escape>', outputText.Kill )
+root.bind( '<Key-Return>', outputText.Thread )
     
 LaunchParams = tk.LabelFrame( root, labelanchor='n', text='Launch Parameters', width=topWidgetW, height=topWidgetH )
 LaunchParams.grid_propagate(False)
@@ -148,7 +149,6 @@ IPorHostNameLabel = tk.Label( root, text='IP Address or Hostname:' )
 IPorHostNameLabel.place( in_=LaunchParams, relx=0.05, rely=0.01 )
 
 IPEntry = tk.Entry( root, text='Enter Ip address here.', width=25 )
-IPEntry.bind( '<Key-Return>', outputText.Thread )
 IPEntry.place( in_=LaunchParams, relx=.05, rely=0.4 )
 
 ProcessControls = tk.LabelFrame( root, labelanchor='n', text='Process Controls', width=topWidgetW, height=topWidgetH )
