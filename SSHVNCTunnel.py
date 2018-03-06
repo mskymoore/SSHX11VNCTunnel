@@ -5,44 +5,50 @@ import multiprocessing as m
 import time as t
 import queue as q
 
-global root, IPEntry
+global root, IPEntry, target
 
 class OutputConsole(tk.Frame):
     def __init__(self, master, *args, **kwargs):
         tk.Frame.__init__(self, master, *args, **kwargs)
-    
         self.text_options = {"state": "disabled"}
         self.text = tk.Text(self, state="disabled", width=95, undo=True)#**self.text_options)
-
         self.text.pack(expand=True, fill="both")
-
         self.ssh_tunnel = None
+        self.target = ""
         self.running = False
-        
         self.bottom = tk.Frame(self)
 
     def display(self, message):
         self.text.config(state="normal")
         self.text.insert(tk.END,message)
         self.text.see(tk.END)
+        self.text.update_idletasks()
         self.text.config(state="disabled")
 
     def Launch(self, event=None):
-        print("Launch, Launch, Launch.....")
         try:
-            self.ssh_tunnel = sp.Popen(['./ssh_vnc.sh',IPEntry.get()],stdout=sp.PIPE,stderr=sp.PIPE)
-            #self.ssh_tunnel = sp.Popen(['./test.sh'],stdout=sp.PIPE,stderr=sp.PIPE, bufsize=1)
+            #Test live process output here
+            #self.ssh_tunnel = sp.Popen(['./test.sh',IPEntry.get()],stdout=sp.PIPE,stderr=sp.STDOUT, bufsize=1)
+            target = IPEntry.get()
+            self.target = target
+            print('calling on ' + target)
+            self.ssh_tunnel = sp.Popen(['./ssh_vnc.sh',IPEntry.get()],stdout=sp.PIPE,stderr=sp.STDOUT)
             iterator = iter(self.ssh_tunnel.stdout.readline, b"")
 
             while self.ssh_tunnel.poll() is None:
                 for line in iterator:
+                    if str(line).count("The VNC desktop is"):
+                        print(line.decode())
+                        desktopString = line.decode().partition(": ")[2].strip()
+                        t.sleep(1)
+                        self.vnc_viewer = sp.Popen(['vncviewer',desktopString])
+                        print(desktopString)
                     self.display(line.decode("utf-8"))
-            self.display("Process Completed.")
+            self.display("Process Completed.\n")
         except FileNotFoundError:
-            self.display("Unknown command")
+            self.display("Unknown command\n")
         except IndexError:
-            self.display("Error")
-        
+            self.display("Error\n")
         self.Kill()
 
     def threadProcess(self):
@@ -56,10 +62,16 @@ class OutputConsole(tk.Frame):
 
     def Kill(self):
         if self.ssh_tunnel:
+            print("Attempting to kill " + str(self.ssh_tunnel) + "\n")
             try:
                 self.ssh_tunnel.kill()
             except ProcessLookupError:
                 pass
+            try:
+                self.display(sp.run(['./ssh_kill_vnc.sh',self.target],stdout=sp.PIPE,stderr=sp.STDOUT).stdout.decode())
+            except Exception:
+                pass
+
         self.running = False
 
 root = tk.Tk()
@@ -79,8 +91,6 @@ Output.grid(row=1,column=0,columnspan=2)
 
 outputText = OutputConsole(root)
 outputText.place(in_=Output,relx=0.02)
-#outputText = tk.Text(root,width=95,undo=True)
-#outputText.place(in_=Output,relx=0.02)
     
 LaunchParams = tk.LabelFrame(root,labelanchor='n',text='Launch Parameters',width=topWidgetW,height=topWidgetH)
 LaunchParams.grid_propagate(False)
@@ -90,7 +100,7 @@ IPorHostNameLabel = tk.Label(root,text='IP address or Hostname:')
 IPorHostNameLabel.place(in_=LaunchParams,rely=0.01)
 
 IPEntry = tk.Entry(root,text='Enter Ip address here.',width=25)
-IPEntry.bind('<Key-Return>',outputText.Launch)
+IPEntry.bind('<Key-Return>',outputText.Thread)
 IPEntry.place(in_=LaunchParams,relx=.05,rely=0.3)
 
 Controls = tk.LabelFrame(root,labelanchor='n',text='Controls',width=topWidgetW,height=topWidgetH)
