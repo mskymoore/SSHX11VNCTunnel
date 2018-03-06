@@ -2,9 +2,48 @@ import tkinter as tk
 import subprocess as sp
 import threading
 import time as t
+import socket as s
 import queue as q
 
 global root, IPEntry, target
+
+def ValidIP(IP):
+    IPv4 = False
+    IPv6 = False
+    try:
+        s.inet_pton(s.AF_INET,IP)
+        IPv4 = True
+        print("Found IPv4 Address: " + IP)
+    except OSError:
+        print(IP + " is not an IPv4 Address.")
+        pass
+    try:
+        s.inet_pton(s.AF_INET6,IP)
+        IPv6 = True
+        print("Found IPv6 Address: " + IP)
+    except OSError:
+        print(IP + " is not an IPv6 Address.")
+        pass
+    if(IPv4 and IPv6):
+        return False
+    elif(IPv4 or IPv6):
+        return True
+    else:
+        return False
+
+def Pingable(target):
+    if sp.run( ['ping', target, '-c', '1', '-W', '1'] ).returncode == 0:
+        return True
+    return False
+
+#Unused at this time.
+def CheckHost(target):
+    if( ValidIP(target) ):
+        if( Pingable(target) ):
+            return True
+    return False
+    
+
 
 class OutputConsole(tk.Frame):
     def __init__(self, master, *args, **kwargs):
@@ -15,11 +54,6 @@ class OutputConsole(tk.Frame):
         self.target = ""
         self.running = False
         self.bottom = tk.Frame(self)
-
-    def Pingable(self, arg):
-        if sp.run( ['ping', self.target, '-c', '1'] ).returncode == 0:
-            return True
-        return False
 
     def display(self, message):
         self.text.config(state="normal")
@@ -34,21 +68,24 @@ class OutputConsole(tk.Frame):
             #self.ssh_tunnel = sp.Popen(['./test.sh',IPEntry.get()],stdout=sp.PIPE,stderr=sp.STDOUT, bufsize=1)
             target = IPEntry.get()
             self.target = target
-            if self.Pingable(self.target):
-                print( 'calling on ' + self.target )
-                self.ssh_tunnel = sp.Popen(['./ssh_vnc.sh' ,self.target],stdout=sp.PIPE,stderr=sp.STDOUT)
-                iterator = iter(self.ssh_tunnel.stdout.readline, b"")
+            if ValidIP(self.target):
+                if Pingable(self.target):
+                    print( 'Calling on ' + self.target )
+                    self.ssh_tunnel = sp.Popen(['./ssh_vnc.sh' ,self.target],stdout=sp.PIPE,stderr=sp.STDOUT)
+                    iterator = iter(self.ssh_tunnel.stdout.readline, b"")
 
-                while self.ssh_tunnel.poll() is None:
-                    for line in iterator:
-                        if str(line).count("The VNC desktop is"):
-                            print(line.decode())
-                            desktopString = line.decode().partition(": ")[2].strip()
-                            t.sleep(1)
-                            self.vnc_viewer = sp.Popen( ['vncviewer', desktopString] )
-                            print(desktopString)
-                        self.display(line.decode("utf-8"))
-                self.display("Process Completed.\n")
+                    while self.ssh_tunnel.poll() is None:
+                        for line in iterator:
+                            if str(line).count("The VNC desktop is"):
+                                print(line.decode())
+                                desktopString = line.decode().partition(": ")[2].strip()
+                                t.sleep(1)
+                                self.vnc_viewer = sp.Popen( ['vncviewer', desktopString] )
+                                print(desktopString)
+                            self.display(line.decode("utf-8"))
+                    self.display("Process Completed.\n")
+                else:
+                    self.display('Host unreachable.\n')
             else:
                 self.display('Please enter a valid IP Address or Hostname.\n')
                 
@@ -75,8 +112,9 @@ class OutputConsole(tk.Frame):
             except ProcessLookupError:
                 pass
             try:
-                if self.Pingable(self.target):
-                    self.display( sp.run( ['./ssh_kill_vnc.sh', self.target], stdout=sp.PIPE, stderr=sp.STDOUT ).stdout.decode() )
+                if ValidIP(self.target):
+                    if Pingable(self.target):
+                        self.display( sp.run( ['./ssh_kill_vnc.sh', self.target], stdout=sp.PIPE, stderr=sp.STDOUT ).stdout.decode() )
             except Exception:
                 pass
 
