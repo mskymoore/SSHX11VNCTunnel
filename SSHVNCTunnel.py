@@ -104,7 +104,7 @@ class OutputConsole(tk.Frame):
         self.running = True
         threading.Thread( target=self.threadProcess ).start()
 
-    def Kill(self):
+    def Kill(self, event=None):
         if self.ssh_tunnel:
             print( "Attempting to kill " + str( self.ssh_tunnel ) + "\n" )
             try:
@@ -137,6 +137,8 @@ Output.grid( row=1, column=0, columnspan=2 )
 
 outputText = OutputConsole(root)
 outputText.place( in_=Output, relx=0.02 )
+
+root.bind("<Key-Escape>", outputText.Kill)
     
 LaunchParams = tk.LabelFrame( root, labelanchor='n', text='Launch Parameters', width=topWidgetW, height=topWidgetH )
 LaunchParams.grid_propagate(False)
