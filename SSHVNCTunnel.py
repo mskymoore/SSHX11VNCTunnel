@@ -9,12 +9,17 @@ global root, IPEntry, target
 class OutputConsole(tk.Frame):
     def __init__(self, master, *args, **kwargs):
         tk.Frame.__init__(self, master, *args, **kwargs)
-        self.text = tk.Text(self, state="disabled", width=95, undo=True)
+        self.text = tk.Text(self, state="disabled", width=95, undo=True, bg="#000000", fg="#00DD22")
         self.text.pack(expand=True, fill="both")
         self.ssh_tunnel = None
         self.target = ""
         self.running = False
         self.bottom = tk.Frame(self)
+
+    def Pingable(self, arg):
+        if sp.run( ['ping', self.target, '-c', '1'] ).returncode == 0:
+            return True
+        return False
 
     def display(self, message):
         self.text.config(state="normal")
@@ -29,8 +34,8 @@ class OutputConsole(tk.Frame):
             #self.ssh_tunnel = sp.Popen(['./test.sh',IPEntry.get()],stdout=sp.PIPE,stderr=sp.STDOUT, bufsize=1)
             target = IPEntry.get()
             self.target = target
-            if sp.run( ['ping', self.target, '-c', '1'] ).returncode == 0:
-                print( 'calling on ' + target )
+            if self.Pingable(self.target):
+                print( 'calling on ' + self.target )
                 self.ssh_tunnel = sp.Popen(['./ssh_vnc.sh' ,self.target],stdout=sp.PIPE,stderr=sp.STDOUT)
                 iterator = iter(self.ssh_tunnel.stdout.readline, b"")
 
@@ -70,7 +75,8 @@ class OutputConsole(tk.Frame):
             except ProcessLookupError:
                 pass
             try:
-                self.display( sp.run( ['./ssh_kill_vnc.sh', self.target], stdout=sp.PIPE, stderr=sp.STDOUT ).stdout.decode() )
+                if self.Pingable(self.target):
+                    self.display( sp.run( ['./ssh_kill_vnc.sh', self.target], stdout=sp.PIPE, stderr=sp.STDOUT ).stdout.decode() )
             except Exception:
                 pass
 
@@ -78,12 +84,12 @@ class OutputConsole(tk.Frame):
 
 root = tk.Tk()
 topWidgetW = 350
-topWidgetH = 100
+topWidgetH = 70
 rootW = topWidgetW*2
-rootH = 550
+rootH = 480
 root.minsize( width=rootW, height=rootH )
 root.maxsize( width=rootW, height=rootH )
-root.title( 'Remote Launcher' )
+root.title( 'SSH Tunneled X11 VNC Launcher' )
 bitImage = tk.PhotoImage( file='S2.png' )
 root.tk.call( 'wm', 'iconphoto', root._w, bitImage )
     
@@ -99,21 +105,21 @@ LaunchParams.grid_propagate(False)
 LaunchParams.grid( row=0, column=0 )
         
 IPorHostNameLabel = tk.Label( root, text='IP Address or Hostname:' )
-IPorHostNameLabel.place( in_=LaunchParams, rely=0.01 )
+IPorHostNameLabel.place( in_=LaunchParams, relx=0.05, rely=0.01 )
 
 IPEntry = tk.Entry( root, text='Enter Ip address here.', width=25 )
 IPEntry.bind( '<Key-Return>', outputText.Thread )
-IPEntry.place( in_=LaunchParams, relx=.05, rely=0.3 )
+IPEntry.place( in_=LaunchParams, relx=.05, rely=0.4 )
 
-Controls = tk.LabelFrame( root, labelanchor='n', text='Controls', width=topWidgetW, height=topWidgetH )
-Controls.grid_propagate(False)
-Controls.grid( row=0, column=1 )
+ProcessControls = tk.LabelFrame( root, labelanchor='n', text='Process Controls', width=topWidgetW, height=topWidgetH )
+ProcessControls.grid_propagate(False)
+ProcessControls.grid( row=0, column=1 )
 
 launchButton = tk.Button( root, text='Launch!', bg='#33AA33', fg='#FFFFFF', command=lambda: outputText.Thread() )
-launchButton.place( in_=Controls, relx=0.2, rely=0.2 )
+launchButton.place( in_=ProcessControls, relx=0.3, rely=0.15 )
 
 killButton = tk.Button( root, text='Kill!', bg='#AA3333', fg='#FFFFFF', command=lambda: outputText.Kill() )
-killButton.place( in_=Controls, relx=0.5, rely=0.2 )
+killButton.place( in_=ProcessControls, relx=0.55, rely=0.15 )
 
 if __name__ == "__main__":
     root.mainloop()
