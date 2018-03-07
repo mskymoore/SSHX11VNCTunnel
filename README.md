@@ -8,8 +8,8 @@ Python 3 on a recent Linux distro  with vncviewer installed.
 
 ## Install:
 
-git clone https://github.com/mskymoore/SSHX11VNCTunnel.git
+`git clone https://github.com/mskymoore/SSHX11VNCTunnel.git`
 
-cd SSHX11VNCTUNNEL
+`cd SSHX11VNCTUNNEL`
 
-sudo python setup.py install
+`sudo python setup.py install`
