@@ -13,3 +13,9 @@ Python 3 on a recent Linux distro  with vncviewer installed.
 `cd SSHX11VNCTUNNEL`
 
 `sudo python setup.py install`
+
+## Run:
+
+1. Open Terminal Emulator
+
+2. `SSHX11VNCTunnel`
