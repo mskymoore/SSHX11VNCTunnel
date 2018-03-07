@@ -4,7 +4,7 @@ from os import path
 
 workdir = path.abspath(path.dirname(__file__))
 
-with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
+with open(path.join(workdir, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
@@ -25,11 +25,10 @@ setup(
             'Programming Language :: Python :: 3.5',
             'Programming Language :: Python :: 3.6',
         ],
-        keywords='VNC X11 SSH'
+        keywords='VNC X11 SSH',
         packages=find_packages(exclude=['tests']),
         package_data={
-            'data' : ['S2.png'],
-            'scripts' : ['ssh_kill_vnc.sh','ssh_vnc.sh'],
+            'SSHX11VNCTunnel': ['S2.png', 'ssh_kill_vnc.sh', 'ssh_vnc.sh'],
         },
         entry_points={
             'console_scripts': [ 

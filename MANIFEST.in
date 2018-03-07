@@ -1,5 +1,7 @@
 include LICENSE.txt
 include README.md
+include S2.png
+include ssh_vnc.sh
+include ssh_kill_vnc.sh
 
-recursive-include data *
-recursive-include scripts *
+

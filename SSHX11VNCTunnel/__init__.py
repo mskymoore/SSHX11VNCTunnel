@@ -4,6 +4,7 @@ import threading
 import time as t
 import socket as s
 import queue as q
+import os
 
 global root, IPEntry, target
 
@@ -67,7 +68,7 @@ class OutputConsole(tk.Frame):
             if ValidIP(self.target):
                 if Pingable(self.target):
                     print( 'Calling on ' + self.target )
-                    self.ssh_tunnel = sp.Popen(['../scripts/ssh_vnc.sh' ,self.target],stdout=sp.PIPE,stderr=sp.STDOUT)
+                    self.ssh_tunnel = sp.Popen( [os.path.dirname(__file__) + '/ssh_vnc.sh' ,self.target],stdout=sp.PIPE,stderr=sp.STDOUT)
                     iterator = iter(self.ssh_tunnel.stdout.readline, b"")
 
                     while self.ssh_tunnel.poll() is None:
@@ -110,7 +111,7 @@ class OutputConsole(tk.Frame):
             try:
                 if ValidIP(self.target):
                     if Pingable(self.target):
-                        self.display( sp.run( ['../scripts/ssh_kill_vnc.sh', self.target], stdout=sp.PIPE, stderr=sp.STDOUT ).stdout.decode() )
+                        self.display( sp.run( [ os.path.dirname(__file__) + '/ssh_kill_vnc.sh', self.target], stdout=sp.PIPE, stderr=sp.STDOUT ).stdout.decode() )
             except Exception:
                 pass
 
@@ -126,7 +127,7 @@ def Main():
     root.minsize( width=rootW, height=rootH )
     root.maxsize( width=rootW, height=rootH )
     root.title( 'SSH Tunneled X11 VNC Launcher' )
-    bitImage = tk.PhotoImage( file='../data/S2.png' )
+    bitImage = tk.PhotoImage( file=(os.path.dirname(__file__) + '/S2.png') )
     root.tk.call( 'wm', 'iconphoto', root._w, bitImage )
         
     Output = tk.LabelFrame( root, labelanchor='n', text='Output', width=rootW, height=topWidgetW+50 )
