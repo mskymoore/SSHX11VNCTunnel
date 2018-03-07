@@ -116,48 +116,48 @@ class OutputConsole(tk.Frame):
 
         self.running = False
 
-root = tk.Tk()
-topWidgetW = 350
-topWidgetH = 70
-rootW = topWidgetW*2
-rootH = 480
-root.minsize( width=rootW, height=rootH )
-root.maxsize( width=rootW, height=rootH )
-root.title( 'SSH Tunneled X11 VNC Launcher' )
-bitImage = tk.PhotoImage( file='../data/S2.png' )
-root.tk.call( 'wm', 'iconphoto', root._w, bitImage )
-    
-Output = tk.LabelFrame( root, labelanchor='n', text='Output', width=rootW, height=topWidgetW+50 )
-Output.grid_propagate(False)
-Output.grid( row=1, column=0, columnspan=2 )
-
-outputText = OutputConsole(root)
-outputText.place( in_=Output, relx=0.02 )
-
-root.bind( '<Key-Escape>', outputText.Kill )
-root.bind( '<Key-Return>', outputText.Thread )
-    
-LaunchParams = tk.LabelFrame( root, labelanchor='n', text='Launch Parameters', width=topWidgetW, height=topWidgetH )
-LaunchParams.grid_propagate(False)
-LaunchParams.grid( row=0, column=0 )
+def Main():
+    global root, IPEntry
+    root = tk.Tk()
+    topWidgetW = 350
+    topWidgetH = 70
+    rootW = topWidgetW*2
+    rootH = 480
+    root.minsize( width=rootW, height=rootH )
+    root.maxsize( width=rootW, height=rootH )
+    root.title( 'SSH Tunneled X11 VNC Launcher' )
+    bitImage = tk.PhotoImage( file='../data/S2.png' )
+    root.tk.call( 'wm', 'iconphoto', root._w, bitImage )
         
-IPorHostNameLabel = tk.Label( root, text='IP Address or Hostname:' )
-IPorHostNameLabel.place( in_=LaunchParams, relx=0.05, rely=0.01 )
+    Output = tk.LabelFrame( root, labelanchor='n', text='Output', width=rootW, height=topWidgetW+50 )
+    Output.grid_propagate(False)
+    Output.grid( row=1, column=0, columnspan=2 )
 
-IPEntry = tk.Entry( root, text='Enter Ip address here.', width=25 )
-IPEntry.place( in_=LaunchParams, relx=.05, rely=0.4 )
+    outputText = OutputConsole(root)
+    outputText.place( in_=Output, relx=0.02 )
 
-ProcessControls = tk.LabelFrame( root, labelanchor='n', text='Process Controls', width=topWidgetW, height=topWidgetH )
-ProcessControls.grid_propagate(False)
-ProcessControls.grid( row=0, column=1 )
+    root.bind( '<Key-Escape>', outputText.Kill )
+    root.bind( '<Key-Return>', outputText.Thread )
+        
+    LaunchParams = tk.LabelFrame( root, labelanchor='n', text='Launch Parameters', width=topWidgetW, height=topWidgetH )
+    LaunchParams.grid_propagate(False)
+    LaunchParams.grid( row=0, column=0 )
+            
+    IPorHostNameLabel = tk.Label( root, text='IP Address or Hostname:' )
+    IPorHostNameLabel.place( in_=LaunchParams, relx=0.05, rely=0.01 )
 
-launchButton = tk.Button( root, text='Launch!', bg='#33AA33', fg='#FFFFFF', command=lambda: outputText.Thread() )
-launchButton.place( in_=ProcessControls, relx=0.3, rely=0.15 )
+    IPEntry = tk.Entry( root, text='Enter Ip address here.', width=25 )
+    IPEntry.place( in_=LaunchParams, relx=.05, rely=0.4 )
 
-killButton = tk.Button( root, text='Kill!', bg='#AA3333', fg='#FFFFFF', command=lambda: outputText.Kill() )
-killButton.place( in_=ProcessControls, relx=0.55, rely=0.15 )
+    ProcessControls = tk.LabelFrame( root, labelanchor='n', text='Process Controls', width=topWidgetW, height=topWidgetH )
+    ProcessControls.grid_propagate(False)
+    ProcessControls.grid( row=0, column=1 )
 
-if __name__ == "__main__":
+    launchButton = tk.Button( root, text='Launch!', bg='#33AA33', fg='#FFFFFF', command=lambda: outputText.Thread() )
+    launchButton.place( in_=ProcessControls, relx=0.3, rely=0.15 )
+
+    killButton = tk.Button( root, text='Kill!', bg='#AA3333', fg='#FFFFFF', command=lambda: outputText.Kill() )
+    killButton.place( in_=ProcessControls, relx=0.55, rely=0.15 )
+
     root.mainloop()
-
 
