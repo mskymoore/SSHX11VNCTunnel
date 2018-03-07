@@ -4,10 +4,12 @@ Tunnels x11vnc on a linux desktop through ssh for localhost access, and launches
 
 ## Requirements:
 
-Python 3 and vncviewer installed.
+Python 3 on a recent Linux distro  with vncviewer installed.
 
 ## Install:
 
-cd SSHVNCTUNNEL
+git clone https://github.com/mskymoore/SSHX11VNCTunnel.git
 
-python setup.py install
+cd SSHX11VNCTUNNEL
+
+sudo python setup.py install
