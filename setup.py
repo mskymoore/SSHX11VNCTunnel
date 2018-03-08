@@ -10,7 +10,7 @@ with open(path.join(workdir, 'README.md'), encoding='utf-8') as f:
 setup(
         name='SSHX11VNCTunnel',
         version='0.0.1a',
-        description='A gui for launching m y remote desktop.',
+        description='A gui for launching my remote desktop.',
         long_description=long_description,
         url='https://github.com/mskymoore/SSHX11VNCTunnel',
         author='Sky Moore',
